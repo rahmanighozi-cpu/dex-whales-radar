@@ -1,0 +1,21 @@
+/* Sembunyikan Footer Streamlit */
+footer {
+    visibility: hidden;
+}
+
+/* Custom Styling untuk Dark Mode yang lebih tajam */
+[data-testid="stAppViewContainer"] {
+    background-color: #0d1117; /* Background gelap tajam */
+    color: #c9d1d9; /* Text terang */
+}
+
+/* Customizing sidebar */
+[data-testid="stSidebar"] {
+    background-color: #161b22;
+}
+
+/* Customizing primary button */
+.stButton>button {
+    background-color: #238636;
+    color: white;
+}
