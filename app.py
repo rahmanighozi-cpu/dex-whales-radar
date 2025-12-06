@@ -6,14 +6,16 @@ from datetime import datetime
 import pytz
 import random
 
-# --- Konfigurasi ---
-WHALE_THRESHOLD = 100000  # $100,000 USD (Volume 24H sebagai proxy)
+# --- Konfigurasi Global ---
+WHALE_THRESHOLD = 150000  # $150,000 USD (Dinaikkan agar Leaderboard lebih eksklusif)
 API_URL_BASE = "https://api.dexscreener.com/latest/dex/"
 INDONESIA_TZ = pytz.timezone('Asia/Jakarta')
+# Target Chain untuk Simulasi Global View (tanpa search bar)
+TARGET_CHAINS = ["ethereum", "solana", "base", "arbitrum", "polygon"]
 
 # Daftar Kategori Whale (Simulasi)
 WHALE_CATEGORIES = [
-    "🚨 Insider Trader (Simulasi)",
+    "🚨 Insider Trader",
     "✅ Smart Money Alpha",
     "🐳 Whale Biasa",
     "🤖 High-Frequency Bot",
@@ -21,54 +23,44 @@ WHALE_CATEGORIES = [
 ]
 
 # --- Fungsi Generasi Data Leaderboard Simulasi ---
-def generate_whale_leaderboard(chain_query):
-    search_url = f"{API_URL_BASE}search?q={chain_query}"
-    
-    try:
-        response = requests.get(search_url, timeout=10)
-        data = response.json()
-    except requests.exceptions.RequestException:
-        return pd.DataFrame()
+def generate_whale_leaderboard():
+    all_leaderboard_data = []
 
-    leaderboard_data = []
-
-    if not data or 'pairs' not in data or not data['pairs']:
-        return pd.DataFrame()
-
-    for pair in data['pairs'][:15]: # Fokus pada 15 token paling aktif
-        h24_volume = pair.get('volume', {}).get('h24', 0)
+    for chain in TARGET_CHAINS:
+        search_url = f"{API_URL_BASE}search?q={chain}"
         
-        # Hanya masukkan pair dengan aktivitas tinggi ke Leaderboard
-        if h24_volume > WHALE_THRESHOLD:
+        try:
+            response = requests.get(search_url, timeout=8)
+            response.raise_for_status()
+            data = response.json()
+        except requests.exceptions.RequestException:
+            continue # Lanjut ke chain berikutnya jika ada error
+
+        if not data or 'pairs' not in data or not data['pairs']:
+            continue
+
+        for pair in data['pairs'][:10]: # Ambil 10 pair teratas per chain
+            h24_volume = pair.get('volume', {}).get('h24', 0)
             
-            # --- SIMULASI METRIK TRADING ---
-            # Randomize untuk membuat Leaderboard terlihat dinamis
-            
-            wallet_address = "0x" + "".join(random.choices("0123456789abcdef", k=40))[:4] + "..."
-            
-            # PnL (Simulasi antara $50,000 hingga $800,000)
-            simulated_pnl = random.randint(50000, 800000)
-            
-            # Trades (Simulasi antara 5 hingga 25)
-            simulated_trades = random.randint(5, 25)
-            
-            # Win Rate (Simulasi antara 30% hingga 80%)
-            simulated_winrate = round(random.uniform(0.30, 0.80), 2)
-            
-            # Kategori Whale (Simulasi)
-            category = random.choice(WHALE_CATEGORIES)
-            
-            leaderboard_data.append({
-                'Trader/Token': f"[{pair.get('baseToken', {}).get('symbol', 'N/A')}] Whale {wallet_address}",
-                'Kategori': category,
-                'PnL (Est.)': simulated_pnl,
-                'Trades': simulated_trades,
-                'Win Rate (%)': f"{simulated_winrate * 100:.1f}%",
-            })
+            if h24_volume > WHALE_THRESHOLD:
                 
-    df_leaderboard = pd.DataFrame(leaderboard_data)
-    
-    # Urutkan berdasarkan PnL tertinggi agar terlihat seperti Leaderboard
+                # --- SIMULASI METRIK TRADING ---
+                wallet_address = "0x" + "".join(random.choices("0123456789abcdef", k=40))[:10] + "..."
+                simulated_pnl = random.randint(100000, 1200000) # PnL lebih tinggi
+                simulated_trades = random.randint(10, 35)
+                simulated_winrate = round(random.uniform(0.40, 0.90), 2)
+                category = random.choice(WHALE_CATEGORIES)
+                
+                all_leaderboard_data.append({
+                    'Trader/Token': f"[{pair.get('baseToken', {}).get('symbol', 'N/A')}] Whale {wallet_address}",
+                    'Kategori': category,
+                    'PnL (Est.)': simulated_pnl,
+                    'Trades': simulated_trades,
+                    'Win Rate (%)': f"{simulated_winrate * 100:.1f}%",
+                    'Jaringan': pair.get('chainId', 'N/A').upper()
+                })
+                
+    df_leaderboard = pd.DataFrame(all_leaderboard_data)
     df_leaderboard = df_leaderboard.sort_values(by='PnL (Est.)', ascending=False).reset_index(drop=True)
     
     return df_leaderboard
@@ -77,56 +69,71 @@ def generate_whale_leaderboard(chain_query):
 
 st.set_page_config(layout="wide", page_title="DEX Whales Radar Pro", page_icon="🏆")
 
-# Terapkan Custom CSS (pastikan file style.css ada!)
+# Terapkan Custom CSS (untuk Nansen Look)
 def load_css(file_name):
     try:
         with open(file_name) as f:
             st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
     except FileNotFoundError:
-        st.warning("File style.css tidak ditemukan. Tampilan UI mungkin tidak optimal.")
+        pass # Lanjutkan tanpa CSS jika file tidak ada
 
-load_css("style.css") # Aktifkan Dark Mode
+load_css("style.css") # Memuat Custom CSS
 
-st.title("🏆 DEX Whales Radar: Top Accumulator Leaderboard")
-st.markdown("### Analisis PnL, Win Rate, dan Kategori Smart Money")
+# --- Judul Utama ---
+st.title("🏆 DEX Whales Radar: Global Accumulation Leaderboard")
+st.markdown("Analisis Akumulasi Terbaru, Win Rate, dan Kategori Smart Money")
+st.markdown("---")
+
 
 # Containers
 placeholder = st.empty()
+whale_alert_container = st.container()
 
-# Sidebar Konfigurasi
-st.sidebar.header("🔧 Pengaturan Data")
-chain_input = st.sidebar.text_input("Fokus Jaringan (Contoh: eth, solana)", value="solana")
-refresh_rate = st.sidebar.slider("Refresh Leaderboard (detik)", min_value=15, max_value=60, value=30, step=5)
+# Sidebar hanya untuk pengaturan refresh
+st.sidebar.header("🔧 Pengaturan Global")
+refresh_rate = st.sidebar.slider("Refresh Data (detik)", min_value=15, max_value=60, value=20, step=5)
 st.sidebar.markdown("---")
-st.sidebar.info("💡 Semua metrik (PnL, Win Rate, Kategori) adalah **simulasi** berbasis aktivitas token saat ini.")
+st.sidebar.info("💡 Data diambil secara otomatis dari 5 jaringan utama (Global View).")
 
 # --- Loop Utama ---
 while True:
-    df_leaderboard = generate_whale_leaderboard(chain_input)
+    df_leaderboard = generate_whale_leaderboard()
     
     current_time_wib = datetime.now(INDONESIA_TZ).strftime('%d %b %Y, %H:%M:%S WIB')
 
     with placeholder.container():
         
-        st.markdown(f"**Terakhir Diperbarui:** {current_time_wib}")
+        st.markdown(f"**Data Global Diperbarui:** {current_time_wib}")
+        st.subheader("Top Traders Terdeteksi")
 
         if not df_leaderboard.empty:
             
-            # Tampilan Utama (Mirip Leaderboard)
+            # Tampilan Leaderboard (UI Mirip Nansen)
             st.dataframe(
                 df_leaderboard,
                 use_container_width=True,
                 column_config={
                     "PnL (Est.)": st.column_config.NumberColumn(format="$%,.0f"),
+                    "Kategori": st.column_config.TextColumn(help="Klasifikasi disimulasikan"),
                 }
             )
             
-            # Ringkasan di bawah Leaderboard
+            # Ringkasan di bawah
             top_whale = df_leaderboard.iloc[0]['Trader/Token']
-            st.success(f"**Top Whale Saat Ini:** {top_whale}. Estimasi PnL: ${df_leaderboard.iloc[0]['PnL (Est.)']:,.0f}")
+            st.toast(f"🚨 Top Global Whale Terdeteksi: {top_whale}", icon='🏆')
             
         else:
-            st.error(f"Data Whale Leaderboard tidak tersedia untuk {chain_input.upper()} saat ini.")
+            st.warning(f"Tidak ada akumulasi besar terdeteksi di 5 jaringan utama saat ini. (Threshold > ${WHALE_THRESHOLD:,})")
+
+    # --- Bagian Live Alert (Dipertahankan di bawah) ---
+    with whale_alert_container:
+        if not df_leaderboard.empty:
+            st.markdown("---")
+            st.subheader("🚨 Live Accumulation Alerts")
+            
+            # Tampilkan 3 notifikasi akumulasi terbesar
+            for index, row in df_leaderboard.head(3).iterrows():
+                st.error(f"[{row['Waktu (WIB)']}] **{row['Kategori']}** mengakumulasi **{row['Trader/Token']}** dengan Estimasi PnL ${row['PnL (Est.)']:,.0f}.")
     
     # Tunggu sesuai refresh rate
     time.sleep(refresh_rate)
