@@ -1,21 +1,60 @@
-/* Sembunyikan Footer Streamlit */
-footer {
-    visibility: hidden;
+/* === FONT GLOBAL === */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif !important;
 }
 
-/* Custom Styling untuk Dark Mode yang lebih tajam */
-[data-testid="stAppViewContainer"] {
-    background-color: #0d1117; /* Background gelap tajam */
-    color: #c9d1d9; /* Text terang */
+/* === BACKGROUND DARK MODE PREMIUM === */
+body {
+    background: radial-gradient(circle at top, #202736, #0d1117) !important;
 }
 
-/* Customizing sidebar */
-[data-testid="stSidebar"] {
-    background-color: #161b22;
+/* === GLASS CONTAINER (FRAME DATAFRAME) === */
+div[data-testid="stDataFrame"] {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+    padding: 12px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.08);
 }
 
-/* Customizing primary button */
-.stButton>button {
-    background-color: #238636;
+/* === HEADER === */
+h1, h2, h3 {
+    font-weight: 700 !important;
+    letter-spacing: -0.5px;
+}
+
+/* === LEADERBOARD TOP WINNER CARD === */
+.highlight-box {
+    padding: 14px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #1f2937, #111827);
+    border-left: 4px solid #00c3ff;
     color: white;
+    margin-top: 12px;
+}
+
+/* === ALERT INSIDER === */
+.big-alert {
+    padding: 20px;
+    border-radius: 14px;
+    background: rgba(255, 65, 54, 0.10);
+    border: 1px solid rgba(255, 65, 54, 0.25);
+    color: #ff4b4b;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+/* === TABLE HOVER === */
+tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.09) !important;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+/* === SIDEBAR GLASS === */
+section[data-testid="stSidebar"] {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(10px);
 }
