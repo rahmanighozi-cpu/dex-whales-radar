@@ -1,60 +1,93 @@
-/* === FONT GLOBAL === */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+/* === FONT NANSEN-STYLE === */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 html, body, [class*="css"] {
     font-family: 'Inter', sans-serif !important;
 }
 
-/* === BACKGROUND DARK MODE PREMIUM === */
+/* === BACKGROUND NAVY === */
 body {
-    background: radial-gradient(circle at top, #202736, #0d1117) !important;
+    background-color: #0c1523 !important;
 }
 
-/* === GLASS CONTAINER (FRAME DATAFRAME) === */
-div[data-testid="stDataFrame"] {
-    background: rgba(255, 255, 255, 0.04);
-    border-radius: 16px;
-    padding: 12px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.08);
+/* === NAVBAR TABS === */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 6px;
+    padding-bottom: 6px;
 }
 
-/* === HEADER === */
-h1, h2, h3 {
-    font-weight: 700 !important;
-    letter-spacing: -0.5px;
+.stTabs [data-baseweb="tab"] {
+    background-color: #0f1c2e !important;
+    padding: 10px 18px !important;
+    border-radius: 8px 8px 0 0 !important;
+    color: #7ea8ff !important;
+    font-weight: 500;
 }
 
-/* === LEADERBOARD TOP WINNER CARD === */
-.highlight-box {
+.stTabs [aria-selected="true"] {
+    background-color: #132338 !important;
+    border-bottom: 2px solid #4dabff !important;
+    color: white !important;
+}
+
+/* === TOP WARNING BANNER === */
+.warning-banner {
+    background: rgba(255, 200, 0, 0.15);
+    border: 1px solid rgba(255, 220, 0, 0.4);
     padding: 14px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #1f2937, #111827);
-    border-left: 4px solid #00c3ff;
-    color: white;
-    margin-top: 12px;
+    border-radius: 10px;
+    color: #ffd24c;
+    margin-bottom: 20px;
+    font-weight: 500;
 }
 
-/* === ALERT INSIDER === */
-.big-alert {
-    padding: 20px;
-    border-radius: 14px;
-    background: rgba(255, 65, 54, 0.10);
-    border: 1px solid rgba(255, 65, 54, 0.25);
-    color: #ff4b4b;
-    margin-bottom: 10px;
-    font-weight: 600;
+/* === MAIN TABLE CARD === */
+.card-container {
+    background-color: #0f1c2e;
+    padding: 18px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.05);
 }
 
-/* === TABLE HOVER === */
+/* === TABLE STYLING (Nansen-like) === */
+thead th {
+    background-color: #132338 !important;
+    color: #93bdfc !important;
+    font-weight: 600 !important;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #101d31 !important;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #0d1728 !important;
+}
+
 tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.09) !important;
-    cursor: pointer;
-    transition: 0.2s;
+    background-color: #1a2c48 !important;
+    transition: 0.15s ease-in-out;
 }
 
-/* === SIDEBAR GLASS === */
-section[data-testid="stSidebar"] {
-    background: rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(10px);
+td, th {
+    border: none !important;
+    padding: 10px 8px !important;
+}
+
+/* === SMALL BLUE TIMER DOT === */
+.time-dot {
+    height: 8px;
+    width: 8px;
+    background-color: #4da6ff;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+}
+
+/* === TOP SECTION TITLE === */
+.section-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: white;
 }
